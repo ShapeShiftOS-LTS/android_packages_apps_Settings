@@ -35,14 +35,17 @@ import static com.android.settingslib.drawer.TileUtils.META_DATA_PREFERENCE_TITL
 
 import android.app.settings.SettingsEnums;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.IContentProvider;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.ContentObserver;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.UserHandle;
 import android.provider.Settings;
 import android.text.TextUtils;
@@ -87,6 +90,7 @@ public class DashboardFeatureProviderImpl implements DashboardFeatureProvider {
     private final MetricsFeatureProvider mMetricsFeatureProvider;
     private final CategoryManager mCategoryManager;
     private final PackageManager mPackageManager;
+    private Handler mHandler;
 
     public DashboardFeatureProviderImpl(Context context) {
         mContext = context.getApplicationContext();
@@ -126,6 +130,7 @@ public class DashboardFeatureProviderImpl implements DashboardFeatureProvider {
         if (pref == null) {
             return null;
         }
+
         if (!TextUtils.isEmpty(key)) {
             pref.setKey(key);
         } else {
@@ -357,6 +362,8 @@ public class DashboardFeatureProviderImpl implements DashboardFeatureProvider {
 
     @VisibleForTesting
     void bindIcon(Preference preference, Tile tile, boolean forceRoundedIcon) {
+        boolean settingsCardsAvailable = Settings.System.getIntForUser(preference.getContext().getContentResolver(),
+                Settings.System.STYLE_OVERLAY_SETTINGS_CARDS, 0, UserHandle.USER_CURRENT) != 2;
         // Use preference context instead here when get icon from Tile, as we are using the context
         // to get the style to tint the icon. Using mContext here won't get the correct style.
         final Icon tileIcon = tile.getIcon(preference.getContext());
@@ -364,10 +371,76 @@ public class DashboardFeatureProviderImpl implements DashboardFeatureProvider {
             Drawable iconDrawable = tileIcon.loadDrawable(preference.getContext());
             if ("com.google.android.gms".equals(tile.getPackageName()) && "Google".equalsIgnoreCase(tile.getTitle(preference.getContext()).toString())) {
                 iconDrawable = preference.getContext().getDrawable(R.drawable.op_ic_homepage_google_settings);
-                preference.setLayoutResource(R.layout.op_home_preference_card_bottom);
+                if (settingsCardsAvailable) {
+                    preference.setLayoutResource(R.layout.op_home_preference_card_bottom);
+                }
             } else if ("com.google.android.apps.wellbeing".equals(tile.getPackageName())) {
                 iconDrawable = preference.getContext().getDrawable(R.drawable.op_ic_homepage_wellbeing_settings);
-                preference.setLayoutResource(R.layout.op_home_preference_card_middle);
+                if (settingsCardsAvailable) {
+                    preference.setLayoutResource(R.layout.op_home_preference_card_middle);
+                }
+            } else if (R.string.network_dashboard_title.equalsIgnoreCase(tile.getTitle(preference.getContext()).toString())) {
+                if (settingsCardsAvailable) {
+                    preference.setLayoutResource(R.layout.op_home_preference_card_top);
+                }
+            } else if (R.string.connected_devices_dashboard_title.equalsIgnoreCase(tile.getTitle(preference.getContext()).toString())) {
+                if (settingsCardsAvailable) {
+                    preference.setLayoutResource(R.layout.op_home_preference_card_bottom);
+                }
+            } else if (R.string.app_and_notification_dashboard_title.equalsIgnoreCase(tile.getTitle(preference.getContext()).toString())) {
+                if (settingsCardsAvailable) {
+                    preference.setLayoutResource(R.layout.op_home_preference_card_top);
+                }
+            } else if (R.string.shapeshifter_title.equalsIgnoreCase(tile.getTitle(preference.getContext()).toString())) {
+                if (settingsCardsAvailable) {
+                    preference.setLayoutResource(R.layout.op_home_preference_card_bottom);
+                }
+            } else if (R.string.power_usage_summary_title.equalsIgnoreCase(tile.getTitle(preference.getContext()).toString())) {
+                if (settingsCardsAvailable) {
+                    preference.setLayoutResource(R.layout.op_home_preference_card_top);
+                }
+            } else if (R.string.display_settings.equalsIgnoreCase(tile.getTitle(preference.getContext()).toString())) {
+                if (settingsCardsAvailable) {
+                    preference.setLayoutResource(R.layout.op_home_preference_card_middle);
+                }
+            } else if (R.string.sound_settings.equalsIgnoreCase(tile.getTitle(preference.getContext()).toString())) {
+                if (settingsCardsAvailable) {
+                    preference.setLayoutResource(R.layout.op_home_preference_card_middle);
+                }
+            } else if (R.string.storage_settings.equalsIgnoreCase(tile.getTitle(preference.getContext()).toString())) {
+                if (settingsCardsAvailable) {
+                    preference.setLayoutResource(R.layout.op_home_preference_card_bottom);
+                }
+            } else if (R.string.privacy_dashboard_title.equalsIgnoreCase(tile.getTitle(preference.getContext()).toString())) {
+                if (settingsCardsAvailable) {
+                    preference.setLayoutResource(R.layout.op_home_preference_card_top);
+                }
+            } else if (R.string.location_settings_title.equalsIgnoreCase(tile.getTitle(preference.getContext()).toString())) {
+                if (settingsCardsAvailable) {
+                    preference.setLayoutResource(R.layout.op_home_preference_card_middle);
+                }
+            } else if (R.string.security_settings_title.equalsIgnoreCase(tile.getTitle(preference.getContext()).toString())) {
+                if (settingsCardsAvailable) {
+                    preference.setLayoutResource(R.layout.op_home_preference_card_middle);
+                }
+            } else if (R.string.accessibility_settings.equalsIgnoreCase(tile.getTitle(preference.getContext()).toString())) {
+                if (settingsCardsAvailable) {
+                    preference.setLayoutResource(R.layout.op_home_preference_card_bottom);
+                }
+            } else if (R.string.account_dashboard_title.equalsIgnoreCase(tile.getTitle(preference.getContext()).toString())) {
+                if (settingsCardsAvailable) {
+                    preference.setLayoutResource(R.layout.op_home_preference_card_top);
+                }
+            } else if (R.string.header_category_system.equalsIgnoreCase(tile.getTitle(preference.getContext()).toString())) {
+                if (settingsCardsAvailable && com.android.internal.util.ssos.Utils.isPackageInstalled(preference.getContext,"com.google.android.apps.wellbeing")) {
+                    preference.setLayoutResource(R.layout.op_home_preference_card_top);
+                } else if (settingsCardsAvailable && !com.android.internal.util.ssos.Utils.isPackageInstalled(preference.getContext,"com.google.android.apps.wellbeing")) {
+                    preference.setLayoutResource(R.layout.op_home_preference_card_middle);
+                }
+            } else if (R.string.about_settings.equalsIgnoreCase(tile.getTitle(preference.getContext()).toString())) {
+                if (settingsCardsAvailable) {
+                    preference.setLayoutResource(R.layout.op_home_preference_card_bottom);
+                }
             } else if (forceRoundedIcon && !TextUtils.equals(mContext.getPackageName(), tile.getPackageName())) {
                 iconDrawable = new AdaptiveIcon(mContext, iconDrawable);
                 ((AdaptiveIcon) iconDrawable).setBackgroundColor(mContext, tile);
