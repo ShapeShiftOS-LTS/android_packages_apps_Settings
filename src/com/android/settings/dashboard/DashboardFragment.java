@@ -519,12 +519,12 @@ public abstract class DashboardFragment extends SettingsPreferenceFragment
                                 mPlaceholderPreferenceController.getOrder());
                 screen.addPreference(pref);
                 String prefStr = pref.getKey().toString();
-                if (prefStr.startsWith("dashboard_tile_pref_com.google.android.apps.wellbeing.")) {
+                if (prefStr.equals("dashboard_tile_pref_com.google.android.apps.wellbeing.settings.TopLevelSettingsActivity")) {
                     pref.setIcon(R.drawable.op_ic_homepage_wellbeing_settings);
                     if (settingsCardsAvailable) {
                         pref.setLayoutResource(R.layout.op_home_preference_card_middle);
                     }
-                } else if (prefStr.startsWith("dashboard_tile_pref_com.google.android.gms.")) {
+                } else if (prefStr.equals("dashboard_tile_pref_com.google.android.gms.app.settings.GoogleSettingsIALink")) {
                     pref.setIcon(R.drawable.op_ic_homepage_google_settings);
                     if (settingsCardsAvailable) {
                         pref.setLayoutResource(R.layout.op_home_preference_card_bottom);
